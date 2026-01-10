@@ -851,12 +851,13 @@
 
   /* Desktop nav links disappear, new bottom bar controls them */
   .nav-center {
-    /* New mobile bottom navigation bar styles */
+    /* New mobile bottom navigation bar styles (fixed to bottom) */
     position: fixed;
     left: 0;
     right: 0;
-    top: 70px; /* Position below the top navbar */
-    height: 68px; /* Standard height for bottom nav */
+    bottom: 0; /* Fixed to bottom of viewport */
+    top: auto;
+    height: 68px; /* Height for bottom nav */
     width: 100%;
     background: linear-gradient(180deg, /* Gradient from top to bottom */
       rgba(38, 70, 83, 0.98) 0%,
@@ -865,19 +866,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 0.5rem;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.25); /* Shadow below the bar */
-    border-bottom: 1px solid rgba(229, 216, 189, 0.12);
-    border-radius: 0 0 12px 12px; /* Rounded bottom corners */
-    transform: translateY(-100%); /* Hidden by default, slides down when active */
+    padding: calc(env(safe-area-inset-bottom, 0.5rem)) 0.75rem calc(env(safe-area-inset-bottom, 0.5rem)); /* respect notch */
+    box-shadow: 0 -6px 30px rgba(0,0,0,0.25); /* Shadow above the bar */
+    border-top: 1px solid rgba(229, 216, 189, 0.12);
+    border-radius: 12px 12px 0 0; /* Rounded top corners */
+    transform: translateY(100%); /* Hidden by default, slides up when active */
     transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
     backdrop-filter: blur(10px);
     visibility: hidden; /* Hidden for screen readers when not active */
+    pointer-events: none;
   }
 
   .nav-center.active {
-    transform: translateY(0); /* Slide down to show */
+    transform: translateY(0); /* Slide up to show */
     visibility: visible; /* Make visible when active */
+    pointer-events: auto;
   }
 
   /* Navigation links within the bottom bar */
@@ -885,13 +888,14 @@
     flex-direction: row; /* Horizontal layout */
     gap: 0.2rem; /* Reduced gap */
     width: 100%;
-    overflow-x: auto; /* Allow horizontal scrolling if many links */
-    padding: 0.25rem 0.25rem; /* Reduced padding */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overflow-x: hidden; /* Do not allow horizontal scroll; distribute items */
+    padding: 0 0.25rem; /* Reduced padding */
+    display: flex;
+    justify-content: space-around; /* Even spacing across the bottom bar */
+    align-items: center;
     background: transparent; /* No background for individual menu */
     border: none; /* No border for individual menu */
     box-shadow: none; /* No shadow */
-    scrollbar-width: none; /* Hide scrollbar for Firefox */
   }
 
   .nav-menu::-webkit-scrollbar {
@@ -899,13 +903,15 @@
   }
 
   .nav-link {
-    flex-shrink: 0; /* Prevent links from shrinking too much */
-    font-size: 0.8rem; /* Smaller font size for bottom bar */
-    padding: 0.5rem 0.75rem; /* Compact padding */
+    flex: 1 1 auto; /* Allow links to grow evenly */
+    text-align: center;
+    font-size: 0.88rem; /* Slightly larger for readability */
+    padding: 0.5rem 0; /* Vertical padding only for button-like feel */
     border-radius: 10px; /* Smaller border radius */
     white-space: nowrap; /* Keep text on one line */
-    background: rgba(229, 216, 189, 0.1); /* Subtle background for links */
-    border: 1px solid rgba(229, 216, 189, 0.08);
+    background: transparent; /* Transparent to fit bar aesthetic */
+    border: none;
+    color: #e2e8f0;
   }
 
   .nav-link.active::after {
@@ -964,6 +970,11 @@
     font-size: 0.85rem !important;
     margin: 0; /* Remove any external margins */
   }
+
+  /* When mobile bottom nav is open, add bottom padding so content isn't hidden */
+  body.nav-open {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 12px));
+  }
 }
 
 @media (max-width: 480px) {
@@ -981,8 +992,15 @@
 
   /* Ensure mobile navigation is properly positioned */
   .nav-center {
-    top: 65px; /* Adjust for smaller navbar height */
+    bottom: 0;
+    top: auto; /* anchored to bottom */
     height: 60px; /* Slightly smaller height for small screens */
+    padding: calc(env(safe-area-inset-bottom, 0.4rem)) 0.6rem calc(env(safe-area-inset-bottom, 0.4rem));
+  }
+
+  /* When bottom nav is open on very small screens adjust page padding */
+  body.nav-open {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 10px));
   }
 
   .mobile-search-bar {
@@ -1043,8 +1061,15 @@
   
   /* Ensure mobile navigation is properly positioned */
   .nav-center {
-    top: 60px; /* Adjust for very small navbar height */
+    bottom: 0;
+    top: auto; /* anchored to bottom */
     height: 56px; /* Even smaller height */
+    padding: calc(env(safe-area-inset-bottom, 0.3rem)) 0.5rem calc(env(safe-area-inset-bottom, 0.3rem));
+  }
+
+  /* When bottom nav is open on extra small screens adjust page padding */
+  body.nav-open {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 8px));
   }
 
   .mobile-search-bar {

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { Bell, Heart, Menu, Search, Settings, Shield, ShoppingBag, User, X } from 'lucide-react';
+import { useContext, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ShoppingBag, User, Heart, Search, Bell, Settings, Shield } from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
 import { AdminAuthContext } from '../admin/AdminAuthContext';
-import { CartContext } from '../context/CartContext';
 import logo from '../Assets/logo.PNG';
+import { AuthContext } from '../context/AuthContext';
+import { CartContext } from '../context/CartContext';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -33,7 +33,18 @@ const Navbar = () => {
     setSearchOpen(false);
   }, [location]);
 
-  // Close dropdowns when clicking outside
+  // Toggle body padding when mobile bottom nav is open so page content isn't hidden
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('nav-open');
+    } else {
+      document.body.classList.remove('nav-open');
+    }
+    // cleanup on unmount
+    return () => document.body.classList.remove('nav-open');
+  }, [isOpen]);
+
+  // Close dropdowns and mobile nav when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Close user menu if click is outside of user menu area
@@ -44,10 +55,14 @@ const Navbar = () => {
       if (searchOpen && !event.target.closest('.search-container') && !event.target.closest('.mobile-search-bar')) {
         setSearchOpen(false);
       }
+      // Close mobile bottom nav if click is outside of the nav and not the toggle button
+      if (isOpen && !event.target.closest('.nav-center') && !event.target.closest('.mobile-menu-btn')) {
+        setIsOpen(false);
+      }
     };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [userMenuOpen, searchOpen]); // Dependency array for `handleClickOutside`
+  }, [userMenuOpen, searchOpen, isOpen]); // Dependency array for `handleClickOutside`
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -243,6 +258,7 @@ const Navbar = () => {
               className="mobile-menu-btn"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle mobile menu"
+              aria-expanded={isOpen}
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
